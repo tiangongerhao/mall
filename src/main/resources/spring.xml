@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context.xsd
+       http://www.springframework.org/schema/mvc
+       http://www.springframework.org/schema/mvc/spring-mvc.xsd
+       http://www.springframework.org/schema/aop
+       http://www.springframework.org/schema/aop/spring-aop.xsd
+       http://www.springframework.org/schema/tx
+       http://www.springframework.org/schema/tx/spring-tx.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
+    <!--自动扫描所有的注解-->
+  <context:component-scan base-package="com.test"/>
+    <tx:annotation-driven transaction-manager="ts"/>
+    <!--aop配置代理目标类-->
+    <aop:config proxy-target-class="true"/>
+    <!---->
+    <mvc:annotation-driven>
+        <!--如果前端向后端传递json时，需要添加的部分,annotation-driven注解驱动-->
+        <mvc:message-converters>
+            <!--使用注解增加事务-->
+            <bean class="org.springframework.http.converter.StringHttpMessageConverter"/>
+            <bean class="com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter">
+                <property name="supportedMediaTypes">
+                    <list>
+                        <value>text/html;charset=utf-8</value>
+                        <value>application/json</value>
+                    </list>
+                </property>
+            </bean>
+        </mvc:message-converters>
+    </mvc:annotation-driven>
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="prefix" value="/"/>
+        <property name="suffix" value=".jsp"/>
+    </bean>
+    <!--pool数据库连接池-->
+      <bean id="ds" class="com.alibaba.druid.pool.DruidDataSource">
+          <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
+          <property name="url" value="jdbc:mysql://localhost:3306/mall3"/>
+          <property name="username" value="root"/>
+          <property name="password" value="root"/>
+      </bean>
+    <!--mybatis-->
+    <bean id="ts" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="ds"/>
+    </bean>
+    <bean  class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="ds"/>
+        <property name="mapperLocations">
+            <list>
+                <value>classpath:mapper/*.xml</value>
+            </list>
+        </property>
+    </bean>
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="com.test.dao"/>
+    </bean>
+    <!--上传文件-->
+        <bean class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+    </bean>
+    <!--value以账号作为参数查询密码-->
+    <!--<bean id="realm" class="org.apache.shiro.realm.jdbc.JdbcRealm">-->
+        <!--<property name="dataSource" ref="ds"/>-->
+        <!--<property name="permissionsLookupEnabled" value="true"/>-->
+        <!--&lt;!&ndash;在使用jdbc工作的时候必须依靠下面的三条语句实现&ndash;&gt;-->
+        <!--<property name="authenticationQuery" value="select pwd from users where account = ?"/>-->
+        <!--&lt;!&ndash;左连接查询&ndash;&gt;-->
+        <!--<property name="userRolesQuery" value="select role_name from user_role left join users u using(id) left join roles using(rid) where u.account=?"/>-->
+        <!--&lt;!&ndash;根据角色找资源或者权限&ndash;&gt;-->
+        <!--<property name="permissionsQuery" value="select perms from role_res left join roles r using(rid) left join res using(id) where r.role_name=?"/>-->
+    <!--</bean>-->
+    <!--&lt;!&ndash;定义缓存管理器&ndash;&gt;-->
+    <!--<bean id="cacheManager" class="org.apache.shiro.cache.MemoryConstrainedCacheManager"></bean>-->
+    <!--&lt;!&ndash;shiro管理器&ndash;&gt;-->
+    <!--<bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">-->
+        <!--<property name="realm" ref="realm"/>-->
+        <!--<property name="cacheManager" ref="cacheManager"/>-->
+    <!--</bean>-->
+    <!--&lt;!&ndash;所要保护的资源 AuthC授权控制&ndash;&gt;-->
+    <!--<bean id="shiro" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">-->
+        <!--<property name="securityManager" ref="securityManager"/>-->
+        <!--<property name="loginUrl" value="toLogin.do"/>-->
+        <!--<property name="filterChainDefinitions">-->
+            <!--<value>-->
+                <!--&lt;!&ndash;控制js和CSS样式不被拦截&ndash;&gt;-->
+                <!--/css/**=anon-->
+                <!--/js/**=anon-->
+                <!--/login.html=anon-->
+                <!--/login.do=anon-->
+                <!--/**=authc-->
+            <!--</value>-->
+        <!--</property>-->
+    <!--</bean>-->
+    <!--<bean class="org.apache.shiro.spring.LifecycleBeanPostProcessor"/>-->
+    <!--<bean class="org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor"/>-->
+    <!--<bean class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">-->
+    <!--&lt;!&ndash;爆发异常之后的处理&ndash;&gt;-->
+        <!--<property name="exceptionMappings">-->
+            <!--&lt;!&ndash;属性的注入&ndash;&gt;-->
+            <!--<props>-->
+                <!--<prop key="org.apache.shiro.authc.UnknownAccountException">-->
+                    <!--redirect:/toLogin.do-->
+                <!--</prop>-->
+                <!--&lt;!&ndash;没有权限需要返回的页面&ndash;&gt;-->
+                <!--<prop key="org.apache.shiro.authz.AuthorizationException">-->
+                    <!--redirect:/toNoQX.do-->
+                <!--</prop>-->
+                <!--&lt;!&ndash;处理所有异常类型的方式&ndash;&gt;-->
+                <!--<prop key="java.lang.Exception">-->
+                    <!--redirect:/toLogin.do-->
+                <!--</prop>-->
+            <!--</props>-->
+        <!--</property>-->
+    <!--</bean>-->
+</beans>
+
+
+
+
+
+
+
+
+
+
+
+
+

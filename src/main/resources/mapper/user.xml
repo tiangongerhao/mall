@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.test.dao.UserDao">
+    <select id="login" parameterType="com.test.entity.User" resultType="com.test.entity.User">
+        select * from users where account=#{account} and pwd=#{pwd}
+    </select>
+    <!--读取所有用户-->
+    <select id="findAllUser" resultType="com.test.entity.User" parameterType="map">
+        select * from users limit #{start},#{size2}
+    </select>
+    <!--保存用户-->
+    <insert id="addUser" parameterType="com.test.entity.User">
+        insert into users(account,pwd) values(#{account},#{pwd})
+    </insert>
+    <!--修改-->
+    <update id="editUser" parameterType="com.test.entity.User">
+        update users set account =#{account} where id=#{id}
+    </update>
+    <!--删除用户-->
+    <delete id="deleteUser2">
+        delete from users where id=#{id};
+    </delete>
+
+    <!--删除多个用户-->
+    <delete id="deleteUser" parameterType="list">
+        delete from users where id in
+        /*separator分离器 动态SQL语句*/
+        <foreach collection="list" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

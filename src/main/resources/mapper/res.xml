@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.test.dao.ResDao">
+    <resultMap id="m1" type="com.test.entity.Res">
+        <result property="text" column="a"/>
+        <result property="url" column="p_url"/>
+        <!--存放多-->
+        <collection property="children" javaType="com.test.entity.Res">
+            <result property="text" column="b"/>
+            <result property="url" column="c"/>
+        </collection>
+    </resultMap>
+    <select id="findAllRes" resultMap="m1">/*别名c*/
+        select p.text as a,s.text b,s.url as c from res p LEFT JOIN  res s on
+        s.pid=p.id left join user_res ur on p.id=ur.rid  where ur.uid=#{uid}
+    </select>
+    <!--所有资源-->
+    <select id="findAllResForPerm" resultType="com.test.entity.Res">
+        select * from res
+    </select>
+    <!--删除老的权限-->
+    <delete id="deletep">
+        delete from user_res where uid=#{userid}
+    </delete>
+    <!--分配权限-->
+    <insert id="fenp" parameterType="map">
+        insert into user_res VALUES
+        /*动态SQL语句*/
+          <foreach collection="redis" item="rid" separator=",">
+              (#{userid},#{rid})
+          </foreach>
+    </insert>
+</mapper>
+
+
+
+
+
+

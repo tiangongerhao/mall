@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.test.dao.CommoDao">
+    <!--添加商品-->
+    <insert id="addCommo" parameterType="com.test.entity.Commodity">
+        insert into commdity(id,name,categoryid,content) values(#{id},#{name},#{categoryid},#{content})
+    </insert>
+    <!--所有的商品-->
+    <select id="findAllCommo" resultType="com.test.entity.Commodity">
+        select * from commodity
+    </select>
+    <!--根据id查商品-->
+    <select id="findCommoById" resultType="com.test.entity.Commodity">
+        SELECT  * from commodity WHERE id=#{id}
+    </select>
+    <delete id="deleteCart" >
+        delete from commodity where id=#{id};
+    </delete>
+    <!--调用存储过程-->
+    <parameterMap id="p1" type="map"><!--mode模式-->
+        <parameter property="x" javaType="FLOAT" mode="IN"/>
+        <parameter property="y" jdbcType="FLOAT" mode="OUT"/>
+    </parameterMap>
+    <select id="findTotal" statementType="CALLABLE" parameterMap="p1">
+        {call p7(?,?)}
+    </select>
+</mapper>
